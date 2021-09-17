@@ -14,35 +14,209 @@ terraform {
 module "main" {
   source = "../.."
 
-  name        = "ABC"
-  alias       = "ALIAS"
-  description = "DESCR"
+  preserve_cos = true
+  qos_classes = [{
+    level                = 1
+    admin_state          = false
+    mtu                  = 9000
+    bandwidth_percent    = 30
+    scheduling           = "strict-priority"
+    congestion_algorithm = "wred"
+  }]
 }
 
-data "aci_rest" "fvTenant" {
-  dn = "uni/tn-ABC"
+data "aci_rest" "qosInstPol" {
+  dn = "uni/infra/qosinst-default"
 
   depends_on = [module.main]
 }
 
-resource "test_assertions" "fvTenant" {
-  component = "fvTenant"
+resource "test_assertions" "qosInstPol" {
+  component = "qosInstPol"
+
+  equal "ctrl" {
+    description = "ctrl"
+    got         = data.aci_rest.qosInstPol.content.ctrl
+    want        = "dot1p-preserve"
+  }
+}
+
+data "aci_rest" "qosClass" {
+  dn = "uni/infra/qosinst-default/class-level1"
+
+  depends_on = [module.main]
+}
+
+resource "test_assertions" "qosClass" {
+  component = "qosClass"
+
+  equal "prio" {
+    description = "prio"
+    got         = data.aci_rest.qosClass.content.prio
+    want        = "level1"
+  }
+
+  equal "admin" {
+    description = "admin"
+    got         = data.aci_rest.qosClass.content.admin
+    want        = "disabled"
+  }
+
+  equal "mtu" {
+    description = "mtu"
+    got         = data.aci_rest.qosClass.content.mtu
+    want        = "9000"
+  }
+}
+
+data "aci_rest" "qosSched" {
+  dn = "${data.aci_rest.qosClass.id}/sched"
+
+  depends_on = [module.main]
+}
+
+resource "test_assertions" "qosSched" {
+  component = "qosSched"
+
+  equal "bw" {
+    description = "bw"
+    got         = data.aci_rest.qosSched.content.bw
+    want        = "30"
+  }
+
+  equal "meth" {
+    description = "meth"
+    got         = data.aci_rest.qosSched.content.meth
+    want        = "sp"
+  }
+}
+
+data "aci_rest" "qosQueue" {
+  dn = "${data.aci_rest.qosClass.id}/queue"
+
+  depends_on = [module.main]
+}
+
+resource "test_assertions" "qosQueue" {
+  component = "qosQueue"
+
+  equal "limit" {
+    description = "limit"
+    got         = data.aci_rest.qosQueue.content.limit
+    want        = "1522"
+  }
+
+  equal "meth" {
+    description = "meth"
+    got         = data.aci_rest.qosQueue.content.meth
+    want        = "dynamic"
+  }
+}
+
+data "aci_rest" "qosPfcPol" {
+  dn = "${data.aci_rest.qosClass.id}/pfcpol-default"
+
+  depends_on = [module.main]
+}
+
+resource "test_assertions" "qosPfcPol" {
+  component = "qosPfcPol"
 
   equal "name" {
     description = "name"
-    got         = data.aci_rest.fvTenant.content.name
-    want        = "ABC"
+    got         = data.aci_rest.qosPfcPol.content.name
+    want        = "default"
   }
 
-  equal "nameAlias" {
-    description = "nameAlias"
-    got         = data.aci_rest.fvTenant.content.nameAlias
-    want        = "ALIAS"
+  equal "adminSt" {
+    description = "adminSt"
+    got         = data.aci_rest.qosPfcPol.content.adminSt
+    want        = "no"
   }
 
-  equal "descr" {
-    description = "descr"
-    got         = data.aci_rest.fvTenant.content.descr
-    want        = "DESCR"
+  equal "noDropCos" {
+    description = "noDropCos"
+    got         = data.aci_rest.qosPfcPol.content.noDropCos
+    want        = ""
+  }
+
+  equal "enableScope" {
+    description = "enableScope"
+    got         = data.aci_rest.qosPfcPol.content.enableScope
+    want        = "tor"
+  }
+}
+
+data "aci_rest" "qosCong" {
+  dn = "${data.aci_rest.qosClass.id}/cong"
+
+  depends_on = [module.main]
+}
+
+resource "test_assertions" "qosCong" {
+  component = "qosCong"
+
+  equal "afdQueueLength" {
+    description = "afdQueueLength"
+    got         = data.aci_rest.qosCong.content.afdQueueLength
+    want        = "0"
+  }
+
+  equal "algo" {
+    description = "algo"
+    got         = data.aci_rest.qosCong.content.algo
+    want        = "wred"
+  }
+
+  equal "ecn" {
+    description = "ecn"
+    got         = data.aci_rest.qosCong.content.ecn
+    want        = "disabled"
+  }
+
+  equal "forwardNonEcn" {
+    description = "forwardNonEcn"
+    got         = data.aci_rest.qosCong.content.forwardNonEcn
+    want        = "disabled"
+  }
+
+  equal "wredMaxThreshold" {
+    description = "wredMaxThreshold"
+    got         = data.aci_rest.qosCong.content.wredMaxThreshold
+    want        = "100"
+  }
+
+  equal "wredMinThreshold" {
+    description = "wredMinThreshold"
+    got         = data.aci_rest.qosCong.content.wredMinThreshold
+    want        = "0"
+  }
+
+  equal "wredProbability" {
+    description = "wredProbability"
+    got         = data.aci_rest.qosCong.content.wredProbability
+    want        = "0"
+  }
+
+  equal "wredWeight" {
+    description = "wredWeight"
+    got         = data.aci_rest.qosCong.content.wredWeight
+    want        = "0"
+  }
+}
+
+data "aci_rest" "qosBuffer" {
+  dn = "${data.aci_rest.qosClass.id}/buffer"
+
+  depends_on = [module.main]
+}
+
+resource "test_assertions" "qosBuffer" {
+  component = "qosBuffer"
+
+  equal "min" {
+    description = "min"
+    got         = data.aci_rest.qosBuffer.content.min
+    want        = "0"
   }
 }
