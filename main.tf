@@ -19,7 +19,7 @@ resource "aci_rest" "qosClass" {
 
 resource "aci_rest" "qosSched" {
   for_each   = { for class in var.qos_classes : class.level => class }
-  dn         = "${aci_rest.qosClass[each.value.level].id}/sched"
+  dn         = "${aci_rest.qosClass[each.value.level].dn}/sched"
   class_name = "qosSched"
   content = {
     bw   = each.value.bandwidth_percent != null ? each.value.bandwidth_percent : "20"
@@ -29,7 +29,7 @@ resource "aci_rest" "qosSched" {
 
 resource "aci_rest" "qosQueue" {
   for_each   = { for class in var.qos_classes : class.level => class }
-  dn         = "${aci_rest.qosClass[each.value.level].id}/queue"
+  dn         = "${aci_rest.qosClass[each.value.level].dn}/queue"
   class_name = "qosQueue"
   content = {
     limit = "1522"
@@ -39,7 +39,7 @@ resource "aci_rest" "qosQueue" {
 
 resource "aci_rest" "qosPfcPol" {
   for_each   = { for class in var.qos_classes : class.level => class }
-  dn         = "${aci_rest.qosClass[each.value.level].id}/pfcpol-default"
+  dn         = "${aci_rest.qosClass[each.value.level].dn}/pfcpol-default"
   class_name = "qosPfcPol"
   content = {
     name        = "default"
@@ -51,7 +51,7 @@ resource "aci_rest" "qosPfcPol" {
 
 resource "aci_rest" "qosCong" {
   for_each   = { for class in var.qos_classes : class.level => class }
-  dn         = "${aci_rest.qosClass[each.value.level].id}/cong"
+  dn         = "${aci_rest.qosClass[each.value.level].dn}/cong"
   class_name = "qosCong"
   content = {
     afdQueueLength   = "0"
@@ -67,7 +67,7 @@ resource "aci_rest" "qosCong" {
 
 resource "aci_rest" "qosBuffer" {
   for_each   = { for class in var.qos_classes : class.level => class }
-  dn         = "${aci_rest.qosClass[each.value.level].id}/buffer"
+  dn         = "${aci_rest.qosClass[each.value.level].dn}/buffer"
   class_name = "qosBuffer"
   content = {
     min = "0"
