@@ -5,8 +5,8 @@ terraform {
     }
 
     aci = {
-      source  = "netascode/aci"
-      version = ">=0.2.0"
+      source  = "CiscoDevNet/aci"
+      version = ">=2.0.0"
     }
   }
 }
@@ -25,7 +25,7 @@ module "main" {
   }]
 }
 
-data "aci_rest" "qosInstPol" {
+data "aci_rest_managed" "qosInstPol" {
   dn = "uni/infra/qosinst-default"
 
   depends_on = [module.main]
@@ -36,12 +36,12 @@ resource "test_assertions" "qosInstPol" {
 
   equal "ctrl" {
     description = "ctrl"
-    got         = data.aci_rest.qosInstPol.content.ctrl
+    got         = data.aci_rest_managed.qosInstPol.content.ctrl
     want        = "dot1p-preserve"
   }
 }
 
-data "aci_rest" "qosClass" {
+data "aci_rest_managed" "qosClass" {
   dn = "uni/infra/qosinst-default/class-level1"
 
   depends_on = [module.main]
@@ -52,25 +52,25 @@ resource "test_assertions" "qosClass" {
 
   equal "prio" {
     description = "prio"
-    got         = data.aci_rest.qosClass.content.prio
+    got         = data.aci_rest_managed.qosClass.content.prio
     want        = "level1"
   }
 
   equal "admin" {
     description = "admin"
-    got         = data.aci_rest.qosClass.content.admin
+    got         = data.aci_rest_managed.qosClass.content.admin
     want        = "disabled"
   }
 
   equal "mtu" {
     description = "mtu"
-    got         = data.aci_rest.qosClass.content.mtu
+    got         = data.aci_rest_managed.qosClass.content.mtu
     want        = "9000"
   }
 }
 
-data "aci_rest" "qosSched" {
-  dn = "${data.aci_rest.qosClass.id}/sched"
+data "aci_rest_managed" "qosSched" {
+  dn = "${data.aci_rest_managed.qosClass.id}/sched"
 
   depends_on = [module.main]
 }
@@ -80,19 +80,19 @@ resource "test_assertions" "qosSched" {
 
   equal "bw" {
     description = "bw"
-    got         = data.aci_rest.qosSched.content.bw
+    got         = data.aci_rest_managed.qosSched.content.bw
     want        = "30"
   }
 
   equal "meth" {
     description = "meth"
-    got         = data.aci_rest.qosSched.content.meth
+    got         = data.aci_rest_managed.qosSched.content.meth
     want        = "sp"
   }
 }
 
-data "aci_rest" "qosQueue" {
-  dn = "${data.aci_rest.qosClass.id}/queue"
+data "aci_rest_managed" "qosQueue" {
+  dn = "${data.aci_rest_managed.qosClass.id}/queue"
 
   depends_on = [module.main]
 }
@@ -102,19 +102,19 @@ resource "test_assertions" "qosQueue" {
 
   equal "limit" {
     description = "limit"
-    got         = data.aci_rest.qosQueue.content.limit
+    got         = data.aci_rest_managed.qosQueue.content.limit
     want        = "1522"
   }
 
   equal "meth" {
     description = "meth"
-    got         = data.aci_rest.qosQueue.content.meth
+    got         = data.aci_rest_managed.qosQueue.content.meth
     want        = "dynamic"
   }
 }
 
-data "aci_rest" "qosPfcPol" {
-  dn = "${data.aci_rest.qosClass.id}/pfcpol-default"
+data "aci_rest_managed" "qosPfcPol" {
+  dn = "${data.aci_rest_managed.qosClass.id}/pfcpol-default"
 
   depends_on = [module.main]
 }
@@ -124,31 +124,31 @@ resource "test_assertions" "qosPfcPol" {
 
   equal "name" {
     description = "name"
-    got         = data.aci_rest.qosPfcPol.content.name
+    got         = data.aci_rest_managed.qosPfcPol.content.name
     want        = "default"
   }
 
   equal "adminSt" {
     description = "adminSt"
-    got         = data.aci_rest.qosPfcPol.content.adminSt
+    got         = data.aci_rest_managed.qosPfcPol.content.adminSt
     want        = "no"
   }
 
   equal "noDropCos" {
     description = "noDropCos"
-    got         = data.aci_rest.qosPfcPol.content.noDropCos
+    got         = data.aci_rest_managed.qosPfcPol.content.noDropCos
     want        = ""
   }
 
   equal "enableScope" {
     description = "enableScope"
-    got         = data.aci_rest.qosPfcPol.content.enableScope
+    got         = data.aci_rest_managed.qosPfcPol.content.enableScope
     want        = "tor"
   }
 }
 
-data "aci_rest" "qosCong" {
-  dn = "${data.aci_rest.qosClass.id}/cong"
+data "aci_rest_managed" "qosCong" {
+  dn = "${data.aci_rest_managed.qosClass.id}/cong"
 
   depends_on = [module.main]
 }
@@ -158,55 +158,55 @@ resource "test_assertions" "qosCong" {
 
   equal "afdQueueLength" {
     description = "afdQueueLength"
-    got         = data.aci_rest.qosCong.content.afdQueueLength
+    got         = data.aci_rest_managed.qosCong.content.afdQueueLength
     want        = "0"
   }
 
   equal "algo" {
     description = "algo"
-    got         = data.aci_rest.qosCong.content.algo
+    got         = data.aci_rest_managed.qosCong.content.algo
     want        = "wred"
   }
 
   equal "ecn" {
     description = "ecn"
-    got         = data.aci_rest.qosCong.content.ecn
+    got         = data.aci_rest_managed.qosCong.content.ecn
     want        = "disabled"
   }
 
   equal "forwardNonEcn" {
     description = "forwardNonEcn"
-    got         = data.aci_rest.qosCong.content.forwardNonEcn
+    got         = data.aci_rest_managed.qosCong.content.forwardNonEcn
     want        = "disabled"
   }
 
   equal "wredMaxThreshold" {
     description = "wredMaxThreshold"
-    got         = data.aci_rest.qosCong.content.wredMaxThreshold
+    got         = data.aci_rest_managed.qosCong.content.wredMaxThreshold
     want        = "100"
   }
 
   equal "wredMinThreshold" {
     description = "wredMinThreshold"
-    got         = data.aci_rest.qosCong.content.wredMinThreshold
+    got         = data.aci_rest_managed.qosCong.content.wredMinThreshold
     want        = "0"
   }
 
   equal "wredProbability" {
     description = "wredProbability"
-    got         = data.aci_rest.qosCong.content.wredProbability
+    got         = data.aci_rest_managed.qosCong.content.wredProbability
     want        = "0"
   }
 
   equal "wredWeight" {
     description = "wredWeight"
-    got         = data.aci_rest.qosCong.content.wredWeight
+    got         = data.aci_rest_managed.qosCong.content.wredWeight
     want        = "0"
   }
 }
 
-data "aci_rest" "qosBuffer" {
-  dn = "${data.aci_rest.qosClass.id}/buffer"
+data "aci_rest_managed" "qosBuffer" {
+  dn = "${data.aci_rest_managed.qosClass.id}/buffer"
 
   depends_on = [module.main]
 }
@@ -216,7 +216,7 @@ resource "test_assertions" "qosBuffer" {
 
   equal "min" {
     description = "min"
-    got         = data.aci_rest.qosBuffer.content.min
+    got         = data.aci_rest_managed.qosBuffer.content.min
     want        = "0"
   }
 }

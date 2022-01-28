@@ -14,7 +14,7 @@ Note that this example will create resources. Resources can be destroyed with `t
 ```hcl
 module "aci_qos" {
   source  = "netascode/qos/aci"
-  version = ">= 0.0.1"
+  version = ">= 0.1.0"
 
   preserve_cos = true
   qos_classes = [{
@@ -26,6 +26,5 @@ module "aci_qos" {
     congestion_algorithm = "wred"
   }]
 }
-
 ```
 <!-- END_TF_DOCS -->
