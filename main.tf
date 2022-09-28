@@ -12,8 +12,8 @@ resource "aci_rest_managed" "qosClass" {
   class_name = "qosClass"
   content = {
     prio  = "level${each.value.level}"
-    admin = each.value.admin_state == false ? "disabled" : "enabled"
-    mtu   = each.value.mtu != null ? each.value.mtu : 9216
+    admin = each.value.admin_state == true ? "enabled" : "disabled"
+    mtu   = each.value.mtu
   }
 }
 
@@ -22,8 +22,8 @@ resource "aci_rest_managed" "qosSched" {
   dn         = "${aci_rest_managed.qosClass[each.value.level].dn}/sched"
   class_name = "qosSched"
   content = {
-    bw   = each.value.bandwidth_percent != null ? each.value.bandwidth_percent : "20"
-    meth = each.value.scheduling != null ? (each.value.scheduling == "strict-priority" ? "sp" : "wrr") : "wrr"
+    bw   = each.value.bandwidth_percent
+    meth = each.value.scheduling == "strict-priority" ? "sp" : "wrr"
   }
 }
 
@@ -55,7 +55,7 @@ resource "aci_rest_managed" "qosCong" {
   class_name = "qosCong"
   content = {
     afdQueueLength   = "0"
-    algo             = each.value.congestion_algorithm != null ? each.value.congestion_algorithm : "tail-drop"
+    algo             = each.value.congestion_algorithm
     ecn              = "disabled"
     forwardNonEcn    = "disabled"
     wredMaxThreshold = "100"

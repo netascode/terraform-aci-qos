@@ -8,11 +8,11 @@ variable "qos_classes" {
   description = "List of QoS classes. Allowed values `level`: 1-6. Default value `admin_state`: true. Allowed values `mtu`: 1-9216. Default value `mtu`: 9000. Allowed values `bandwidth_percent`: 0-100. Default value `bandwidth_percent`: 20. Choices `scheduling`: `wrr`, `strict-priority`. Default value `scheduling`: `wrr`. Choices `congestion_algorithm`: `tail-drop`, `wred`. Default value `congestion_algorithm`: `tail-drop`."
   type = list(object({
     level                = number
-    admin_state          = optional(bool)
-    mtu                  = optional(number)
-    bandwidth_percent    = optional(number)
-    scheduling           = optional(string)
-    congestion_algorithm = optional(string)
+    admin_state          = optional(bool, true)
+    mtu                  = optional(number, 9000)
+    bandwidth_percent    = optional(number, 20)
+    scheduling           = optional(string, "wrr")
+    congestion_algorithm = optional(string, "tail-drop")
   }))
   default = []
 

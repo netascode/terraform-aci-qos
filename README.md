@@ -13,7 +13,7 @@ Location in GUI:
 ```hcl
 module "aci_qos" {
   source  = "netascode/qos/aci"
-  version = ">= 0.1.0"
+  version = ">= 0.2.0"
 
   preserve_cos = true
   qos_classes = [{
@@ -31,7 +31,7 @@ module "aci_qos" {
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
 | <a name="requirement_aci"></a> [aci](#requirement\_aci) | >= 2.0.0 |
 
 ## Providers
@@ -45,7 +45,7 @@ module "aci_qos" {
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_preserve_cos"></a> [preserve\_cos](#input\_preserve\_cos) | Preserve CoS. | `bool` | `false` | no |
-| <a name="input_qos_classes"></a> [qos\_classes](#input\_qos\_classes) | List of QoS classes. Allowed values `level`: 1-6. Default value `admin_state`: true. Allowed values `mtu`: 1-9216. Default value `mtu`: 9000. Allowed values `bandwidth_percent`: 0-100. Default value `bandwidth_percent`: 20. Choices `scheduling`: `wrr`, `strict-priority`. Default value `scheduling`: `wrr`. Choices `congestion_algorithm`: `tail-drop`, `wred`. Default value `congestion_algorithm`: `tail-drop`. | <pre>list(object({<br>    level                = number<br>    admin_state          = optional(bool)<br>    mtu                  = optional(number)<br>    bandwidth_percent    = optional(number)<br>    scheduling           = optional(string)<br>    congestion_algorithm = optional(string)<br>  }))</pre> | `[]` | no |
+| <a name="input_qos_classes"></a> [qos\_classes](#input\_qos\_classes) | List of QoS classes. Allowed values `level`: 1-6. Default value `admin_state`: true. Allowed values `mtu`: 1-9216. Default value `mtu`: 9000. Allowed values `bandwidth_percent`: 0-100. Default value `bandwidth_percent`: 20. Choices `scheduling`: `wrr`, `strict-priority`. Default value `scheduling`: `wrr`. Choices `congestion_algorithm`: `tail-drop`, `wred`. Default value `congestion_algorithm`: `tail-drop`. | <pre>list(object({<br>    level                = number<br>    admin_state          = optional(bool, true)<br>    mtu                  = optional(number, 9000)<br>    bandwidth_percent    = optional(number, 20)<br>    scheduling           = optional(string, "wrr")<br>    congestion_algorithm = optional(string, "tail-drop")<br>  }))</pre> | `[]` | no |
 
 ## Outputs
 
