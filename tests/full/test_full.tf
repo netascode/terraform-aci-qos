@@ -24,6 +24,16 @@ module "main" {
     bandwidth_percent    = 30
     scheduling           = "strict-priority"
     congestion_algorithm = "wred"
+    minimum_buffer       = 1
+    pfc_state            = true
+    no_drop_cos          = "cos1"
+    pfc_scope            = "fabric"
+    ecn                  = true
+    forward_non_ecn      = true
+    wred_max_threshold   = 90
+    wred_min_threshold   = 10
+    wred_probability     = 5
+    weight               = 1
   }]
 }
 
@@ -133,19 +143,19 @@ resource "test_assertions" "qosPfcPol" {
   equal "adminSt" {
     description = "adminSt"
     got         = data.aci_rest_managed.qosPfcPol.content.adminSt
-    want        = "no"
+    want        = "yes"
   }
 
   equal "noDropCos" {
     description = "noDropCos"
     got         = data.aci_rest_managed.qosPfcPol.content.noDropCos
-    want        = ""
+    want        = "cos1"
   }
 
   equal "enableScope" {
     description = "enableScope"
     got         = data.aci_rest_managed.qosPfcPol.content.enableScope
-    want        = "tor"
+    want        = "fabric"
   }
 }
 
@@ -173,37 +183,37 @@ resource "test_assertions" "qosCong" {
   equal "ecn" {
     description = "ecn"
     got         = data.aci_rest_managed.qosCong.content.ecn
-    want        = "disabled"
+    want        = "enabled"
   }
 
   equal "forwardNonEcn" {
     description = "forwardNonEcn"
     got         = data.aci_rest_managed.qosCong.content.forwardNonEcn
-    want        = "disabled"
+    want        = "enabled"
   }
 
   equal "wredMaxThreshold" {
     description = "wredMaxThreshold"
     got         = data.aci_rest_managed.qosCong.content.wredMaxThreshold
-    want        = "100"
+    want        = "90"
   }
 
   equal "wredMinThreshold" {
     description = "wredMinThreshold"
     got         = data.aci_rest_managed.qosCong.content.wredMinThreshold
-    want        = "0"
+    want        = "10"
   }
 
   equal "wredProbability" {
     description = "wredProbability"
     got         = data.aci_rest_managed.qosCong.content.wredProbability
-    want        = "0"
+    want        = "5"
   }
 
   equal "wredWeight" {
     description = "wredWeight"
     got         = data.aci_rest_managed.qosCong.content.wredWeight
-    want        = "0"
+    want        = "1"
   }
 }
 
@@ -219,6 +229,6 @@ resource "test_assertions" "qosBuffer" {
   equal "min" {
     description = "min"
     got         = data.aci_rest_managed.qosBuffer.content.min
-    want        = "0"
+    want        = "1"
   }
 }

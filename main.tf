@@ -43,9 +43,9 @@ resource "aci_rest_managed" "qosPfcPol" {
   class_name = "qosPfcPol"
   content = {
     name        = "default"
-    adminSt     = "no"
-    noDropCos   = ""
-    enableScope = "tor"
+    adminSt     = each.value.pfc_state == true ? "yes" : "no"
+    noDropCos   = each.value.no_drop_cos
+    enableScope = each.value.pfc_scope
   }
 }
 
@@ -56,12 +56,12 @@ resource "aci_rest_managed" "qosCong" {
   content = {
     afdQueueLength   = "0"
     algo             = each.value.congestion_algorithm
-    ecn              = "disabled"
-    forwardNonEcn    = "disabled"
-    wredMaxThreshold = "100"
-    wredMinThreshold = "0"
-    wredProbability  = "0"
-    wredWeight       = "0"
+    ecn              = each.value.ecn == true ? "enabled" : "disabled"
+    forwardNonEcn    = each.value.forward_non_ecn == true ? "enabled" : "disabled"
+    wredMaxThreshold = each.value.wred_max_threshold
+    wredMinThreshold = each.value.wred_min_threshold
+    wredProbability  = each.value.wred_probability
+    wredWeight       = each.value.weight
   }
 }
 
@@ -70,6 +70,6 @@ resource "aci_rest_managed" "qosBuffer" {
   dn         = "${aci_rest_managed.qosClass[each.value.level].dn}/buffer"
   class_name = "qosBuffer"
   content = {
-    min = "0"
+    min = each.value.minimum_buffer
   }
 }
